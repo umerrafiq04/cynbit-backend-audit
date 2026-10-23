@@ -44,6 +44,8 @@ The homepage exposed `Server: Vercel`; public resources used `/_next/static/...`
 
 These observations establish the shipped client flow only. No form action was invoked; the actual request method/payload, server validation, persistence, notification delivery, duplicate handling, authorization, and backend architecture remain unknown. A third-party analytics POST appeared as `ERR_ABORTED` during navigation in the limited browser event view; this does not establish an application failure.
 
+The public JavaScript reveals client-side submission inputs (`FormData` for contact; a job identifier and serialized education data for the application), but these are not captured HTTP request bodies. The actual API route(s), request schema, response schema, authentication requirements, and backend API structure could not be established without an authorized request/response or server-side documentation. No endpoint or payload is inferred beyond the observed client code.
+
 The contact form displayed five text-entry controls. The internship form displayed 23 controls and required fields including date of birth, gender, phone, WhatsApp, and permanent address. The public privacy notice describes typical collection such as name, email, and professional context and names Resend and Prisma among service providers; the cookie notice describes Google Analytics/page-interaction metrics. These are public statements, not verified implementation details. Browser storage names observed in a shared browser context were `_ga`, `_ga_LK6CQWCWX0`, `_gcl_au`, `_gcl_ls`, and `cynbit_newsletter_seen`; no values were read. Their setter, age, purpose, attributes, and consent state are unknown.
 
 ## 5. Prioritized findings
@@ -64,6 +66,14 @@ The contact form displayed five text-entry controls. The internship form display
 - **PRIV-01:** Ask the recruitment/data owner for the purpose and collection stage of each required field, then compare that documented purpose with the applicant notice. In authorized staging/design documentation, verify retention/deletion, recruiter roles, and that body fields are excluded from logs.
 - **PRIV-02:** In a clean authorized browser profile, record storage names and attributes before/after consent and compare with tag-manager/vendor configuration and the public notice. The existing shared-profile names alone are insufficient to establish site ownership or disclosure gaps.
 - **CORS-01:** Review intended cross-origin clients and API configuration; only assess browser access to any non-public response in an authorized staging/account context. Do not infer risk from public HTML alone.
+
+### Performance assessment — no performance finding
+
+The review observed ordinary page loads and recorded limited response metadata, including selected HTML response sizes and a single observation of an analytics request aborted during navigation. It did not collect repeatable timing samples or establish whether that analytics event affected user-visible behavior. These observations are not a backend performance result: a one-off public-page response includes network, CDN/cache, browser, and rendering effects, and cannot isolate origin/backend latency or capacity.
+
+No response-time percentiles, sustained throughput, error/timeout rates, resource utilization, or controlled concurrency measurements were collected. No bottleneck, slow endpoint, capacity limit, or performance vulnerability is claimed.
+
+With written authorization in staging, define representative journeys and expected traffic, then collect repeated baseline and gradually increased-load measurements: request latency (p50/p95/p99), throughput, HTTP/application error and timeout rates, and relevant service resources (CPU, memory, worker/connection pools, and database metrics if applicable). Correlate client timings with server traces and set stop conditions in advance. Do not run load or stress tests against Cynbit production without explicit authorization.
 
 ### HDR-01: practical interpretation
 
@@ -150,15 +160,16 @@ For recruitment data, confirm purpose for each required field, make fields optio
 | `node --test code-examples/tests/contact-form.test.mjs` | Exit 0; **3 passed** (Node v24.15.0). Covers success, resolved failure, rejected Promise, pending reset, generic error, and retry. |
 | `python -m pip install --disable-pip-version-check -r requirements.txt` (fresh Python 3.11 venv) | Exit 0; exact pins installed. |
 | `python -m pip check` (fresh venv) | Exit 0; no broken requirements. |
-| Local Uvicorn CLI launch (`python -m uvicorn main:app --app-dir code-examples\app --host 127.0.0.1 --port 8767`) | PowerShell smoke script exited 0; `GET /health` returned 200 `{"status":"ok"}`. The test PID was explicitly stopped after the response; no graceful server exit code is claimed. Auto-reload was disabled. |
+| Local Uvicorn CLI launch (`python -m uvicorn main:app --app-dir code-examples\app --host 127.0.0.1 --port 8768`) | Fresh-environment smoke script exited 0; `GET /health` returned 200 `{"status":"ok"}`. The exact test PID was explicitly stopped after the response; no graceful server exit code is claimed. Auto-reload was disabled. |
 | Python AST parsing and app import | Passed; routes `/health`, `/inquiries`, and local OpenAPI docs loaded. |
-| Markdown-to-PDF export and inspection | Regenerated from this report; 6 pages. Extracted text contains all 10 sections, all 5 finding IDs, current test counts, and page footers; visually checked in the integrated PDF reader. |
+| Markdown-to-PDF export and inspection | Regenerated from this report; extracted text checked for all 10 sections, all 5 finding IDs, current test counts, and page numbering. Tables, code, page layout, and readability were visually inspected in the integrated PDF reader. The final page count is recorded in E-024. |
 
 These are local example tests only and do not test Cynbit's production service. The [verification log](../evidence/verification-log.md) records the prior review, current evidence IDs, limitations, and test results.
 
 ## 9. Limitations and authorized follow-up
 
 - No first-party server-action/API request or response was captured. No contact or application form was submitted; no production records were created.
+- Actual production API routes, request/response schemas, and payloads were not captured. Public client bundles reveal only client-side submission inputs and action references.
 - Server-side validation, request limits, rate limits, persistence, notifications, authentication/authorization, CSRF applicability, and access/retention controls remain unverified.
 - Browser cookie-attribute inspection was unavailable. Only storage names were observed; no values were read. A single reload of `/cookies` produced no observed console/page errors; this is not a site-wide check.
 - Privacy/cookie page claims were not independently verified against vendor configurations or internal data flows. No legal assessment was performed.
@@ -174,6 +185,6 @@ The strongest concrete result is REL-01, a low-severity, statically verified cli
 2. With authorization, capture sanitized staging form requests/responses and verify server validation, body limits, abuse controls, data handling, and error behavior.
 3. Reconcile recruitment fields and browser-storage identifiers with purpose-specific notices, consent, access, and retention policies.
 4. Review header policies with frontend owners and test CSP in report-only mode before enforcement.
-5. Gather repeatable performance telemetry before making scaling recommendations.
+5. If performance assessment is required, request staging access and written authorization, then gather the repeatable telemetry described above before making capacity recommendations.
 
-No repository commit, GitHub publication, or assessment submission has been made.
+**Repository status (23 October 2026):** This assessment is published in the public repository at [github.com/umerrafiq04/cynbit-backend-audit](https://github.com/umerrafiq04/cynbit-backend-audit). Publication does not mean the assessment was submitted through Cynbit's candidate portal; portal submission remains for the candidate to complete.

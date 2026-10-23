@@ -50,9 +50,18 @@ Verified observations are separated from unknown backend behavior and recommenda
 | Potential privacy review | Browser storage names do not fully map one-to-one to the public cookie policy text; the identifiers' source and age are unknown. |
 | Potential risk | The internship application UI marks several personal-data fields as required; necessity and backend handling are unknown. |
 | Unverified | Actual form request/response and server-side validation, persistence, notifications, rate limits, authentication/authorization, cookie attributes/setters, and redirects. |
-| Recommendation | Obtain authorized, sanitized Network evidence in staging and verify the form behavior using an approved test record. |
+| Recommendation | Obtain authorized, sanitized staging request/response evidence before making claims about production API routes, payload schemas, or backend controls. |
 
 See the evidence IDs, limitations, and recommendations in [report/backend-audit.md](report/backend-audit.md).
+
+### Findings at a glance
+
+| ID | Assessment | Status |
+|---|---|---|
+| REL-01 | Low severity; high confidence in the static path. Rejected contact action may leave pending state set. | Client-code path verified; live failure not reproduced. A separate local model tests a `finally`-based fix and retry. |
+| HDR-01 | Informational; five selected security headers were absent from sampled HTML responses. | Hardening observation, not evidence of an exploit. |
+| CORS-01 | Informational; wildcard CORS appeared on five sampled public HTML pages. | No sensitive or credentialed API response was tested. |
+| PRIV-01 / PRIV-02 | Potential review questions about applicant-field purpose and storage disclosure. | No privacy violation or legal conclusion established. |
 
 ## Local reference API
 
@@ -91,6 +100,12 @@ Run the Python API tests and the dependency-free Node state tests from the repos
 
 **Execution result:** `python -B -m pytest -p no:cacheprovider` — **23 passed** (Python 3.11.9, pytest 9.1.1). `node --test code-examples/tests/contact-form.test.mjs` — **3 passed** (Node v24.15.0). Python syntax/import checks also passed. Tests make no requests to Cynbit and do not establish production security.
 
+## Performance assessment
+
+The review involved ordinary public-page visits and limited one-off response metadata; it did not run a repeatable benchmark or establish a backend performance finding. A single page response can reflect network, CDN/cache, browser, and rendering effects and cannot isolate backend latency. No latency percentiles, throughput, error/timeout rates, controlled concurrency, or CPU, memory, worker-pool, or database-resource metrics were collected.
+
+With written authorization in staging, future assessment could test representative journeys and measure p50/p95/p99 response times, throughput, error and timeout rates, and relevant service resources under controlled traffic, with predefined stop conditions and correlation to server traces. Do not load-test Cynbit production without explicit authorization.
+
 ## PDF
 
 The editable report is [report/backend-audit.md](report/backend-audit.md), and the rendered, checked PDF is [report/backend-audit.pdf](report/backend-audit.pdf). The PDF was printed from the Markdown-rendered report using local Microsoft Edge and checked for readable text and page count. If you edit the Markdown report, regenerate/export its PDF from a Markdown renderer, then confirm the PDF contains the updated findings, evidence IDs, test results, and page numbers before submission.
@@ -99,6 +114,7 @@ The editable report is [report/backend-audit.md](report/backend-audit.md), and t
 
 - A single request's response size and elapsed time is not a performance benchmark.
 - No form was submitted and no first-party server-action/API request or response was captured. The public bundle references actions, but invoking them could create real inquiries/applications.
+- Actual production API routes, request/response schemas, and payloads were not captured; client bundles show only client-side submission inputs and action references.
 - The REL-01 failure is established by static code-path analysis and reproduced in a local independent model; it was not triggered on the live site.
 - Cookie values, setter, creation time, flags, and policy-consent behavior were not captured; the browser's cookie-attribute inspection API was unavailable.
 - A console listener found no errors during one reload of `/cookies`; that narrow check is not representative of all pages or actions.
@@ -111,15 +127,6 @@ The editable report is [report/backend-audit.md](report/backend-audit.md), and t
 
 Do not commit `.env` files, credentials, cookies, tokens, or unredacted browser captures. Review the server-side retention, access, and privacy requirements before extending the sample. Use a staging system and explicit authorization for any submission testing. The sample deliberately avoids logging request bodies and does not retain submitted data.
 
-## Submission checklist
+## Publication and submission status
 
-- [ ] Create or confirm the public repository URL (do not publish without review).
-- [ ] Review the Markdown report and include the PDF if rendering has been verified.
-- [ ] Confirm source code and test results are current.
-- [ ] Confirm README setup/test commands work on the submission machine.
-- [ ] Add sanitized evidence only; do not include raw browser profiles, HAR secrets, or personal data.
-- [ ] Check for secrets, `.env`, caches, virtual environments, and unrelated personal files.
-- [ ] Confirm the correct candidate portal and assessment requirements.
-- [ ] Submit before **Saturday, 24 October 2026, 1:30 PM IST**.
-
-No repository has been published and no assessment submission has been made.
+The assessment project is published in the public GitHub repository [umerrafiq04/cynbit-backend-audit](https://github.com/umerrafiq04/cynbit-backend-audit). GitHub publication is separate from applying: submission through Cynbit's candidate portal has not been verified. Before submitting, review the final report and PDF and use the portal instructions supplied by Cynbit.

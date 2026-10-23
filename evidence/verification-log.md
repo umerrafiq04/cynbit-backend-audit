@@ -58,7 +58,8 @@ The route-header pass was repeated at 19:26:42–19:26:46 IST on 23 October (E-0
 | E-020 | Contact-form state-model tests | `node --test code-examples/tests/contact-form.test.mjs`: exit 0, 3/3 passed for success, resolved failure, rejected action, pending cleanup, generic error, and retry. This is the independent local model, not Cynbit code. |
 | E-021 | FastAPI reference tests | `python -B -m pytest -p no:cacheprovider`: exit 0, 23/23 passed. Tests apply only to the local validation example. |
 | E-022 | Fresh setup and server launch | In a new Python 3.11 venv, `python -m pip install --disable-pip-version-check -r requirements.txt` and `python -m pip check` both exited 0; pytest passed 23/23. Uvicorn CLI (`main:app`, app directory `code-examples\app`, explicit local host/port, auto-reload disabled) returned `GET /health` 200 `{"status":"ok"}`. The exact test PID was stopped after the response; no graceful server exit code is claimed. No Cynbit endpoint was contacted. |
-| E-023 | Final report PDF | Regenerated from the final Markdown with local Mistune and Edge. Six pages; text extraction verified all 10 section headings, findings REL-01/HDR-01/PRIV-01/PRIV-02/CORS-01, current Python/Node test totals, and page numbering. Visual readability was checked in the integrated PDF reader. |
+| E-023 | Report PDF, previous revision | Regenerated from the prior report revision with local Mistune and Edge. Superseded by the final export and inspection in E-024. |
+| E-024 | Final quality check | Python 3.11.9: `python -B -m pytest -p no:cacheprovider` passed 23/23. Node v24.15.0: `node --test code-examples/tests/contact-form.test.mjs` passed 3/3. Fresh venv install, `pip check`, and tests passed; Uvicorn served local `/health` with HTTP 200. Current PDF is 7 pages; text extraction includes the performance plan, publication-vs-portal status, all finding IDs and test totals. All pages have text and page-number footers; no replacement characters; visual inspection performed. This evidence covers the local examples and deliverables only. |
 
 ## Local example validation
 
@@ -77,8 +78,23 @@ The route-header pass was repeated at 19:26:42–19:26:46 IST on 23 October (E-0
 
 - No exploitable security vulnerability was confirmed. No high- or critical-severity security issue is claimed.
 - REL-01 is a low-severity code-path defect verified in the current public contact bundle: if the server action rejects, the pending state remains set and the button disabled. The scenario is substantiated by static control-flow analysis and the independent local model; it was not triggered on production.
-- PR-01 and PR-02 are review recommendations, not confirmed privacy violations. Applicant-field necessity and browser-storage identifiers' source/purpose/age remain unknown.
+- PRIV-01 and PRIV-02 are review recommendations, not confirmed privacy violations. Applicant-field necessity and browser-storage identifiers' source/purpose/age remain unknown.
 - Missing selected headers are observations and defense-in-depth recommendations, not proof of XSS, clickjacking, or another exploit.
 - No production form was submitted, no first-party server-action request/response was recorded, and no production data was created.
 - No screenshots or HAR were saved. Cookie values, analytics query values, personal data, and action identifiers were not retained.
 - Use written authorization and a designated staging environment before testing form submission or validation behavior.
+
+## Performance evidence boundary
+
+No repeatable performance benchmark was run. The observations were ordinary public-page navigation, limited one-off response metadata and page sizes, and a third-party analytics request marked aborted during navigation. They do not isolate origin/backend latency or establish capacity. No latency percentiles, throughput, error rates, controlled concurrency, or service resource utilization were measured; no performance defect or bottleneck is claimed. Future performance assessment requires written authorization and staging: use representative traffic, collect p50/p95/p99 latency, throughput, error/timeout rates, and relevant service-resource metrics, with predefined stop conditions. Do not load-test production without explicit authorization.
+
+## Publication and submission status
+
+As of 23 October 2026, the project is available in the public GitHub repository [umerrafiq04/cynbit-backend-audit](https://github.com/umerrafiq04/cynbit-backend-audit). This records repository publication only. Submission through Cynbit's candidate portal has not been verified and remains the candidate's responsibility.
+
+## Final quality-check run
+
+- From the repository root, `python -B -m pytest -p no:cacheprovider` passed **23 tests**; `node --test code-examples/tests/contact-form.test.mjs` passed **3 tests**.
+- A fresh Python 3.11 virtual environment installed `requirements.txt`; `python -m pip check` found no broken requirements, and pytest passed 23 tests in that environment.
+- Uvicorn launched from the fresh environment using the documented app module and directory; `GET /health` returned HTTP 200 `{"status":"ok"}` on the test port. The exact test process was explicitly stopped after the response; no graceful shutdown exit is claimed.
+- Relative Markdown links resolved. No preparation-stage repository-status claim remains in the Markdown sources. The final PDF check is recorded in E-024.
